@@ -1,0 +1,16 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    id 'com.android.application' version '8.0.2' apply false
+    id 'com.android.library' version '8.0.2' apply false
+}
+ext {
+    /*uvcCameraLib版本*/
+    libUvcCameraSupportLibVersion = '27.1.1'  // variable that can be referenced to keep support libs consistent
+    libUvcCameraCommonLibVersion= '2.12.4'
+    libUvcCameraVersionBuildTool = '27.0.3'
+    libUvcCameraVersionCompiler = 27
+    libUvcCameraVersionTarget = 27
+    libUvcCameraVersionNameString = '1.0.0'
+    libUvcCameraJavaTargetCompatibility = JavaVersion.VERSION_1_8
+    libUvcCameraJavaSourceCompatibility = JavaVersion.VERSION_1_8
+}
