@@ -44,26 +44,26 @@ import com.serenegiant.utils.PermissionCheck;
  * Created by saki on 2016/11/19.
  *
  */
-public class BaseFragment extends Fragment implements MessageDialogFragment.MessageDialogListener {
+public class BaseCameraFragment extends Fragment implements MessageDialogFragment.MessageDialogListener {
 
-	private static boolean DEBUG = false;	// FIXME 実働時はfalseにセットすること
-	private static final String TAG = BaseFragment.class.getSimpleName();
+	private static boolean DEBUG = false;   // FIXME 在實際運行時應設置為false
+	private static final String TAG = BaseCameraFragment.class.getSimpleName();
 
-	/** UI操作のためのHandler */
+	/** 用於UI操作的處理器 */
 	private final Handler mUIHandler = new Handler(Looper.getMainLooper());
 	private final Thread mUiThread = mUIHandler.getLooper().getThread();
-	/** ワーカースレッド上で処理するためのHandler */
+	/** 用於在工作線程上處理的Handler */
 	private Handler mWorkerHandler;
 	private long mWorkerThreadID = -1;
 
-	public BaseFragment() {
+	public BaseCameraFragment() {
 		super();
 	}
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// ワーカースレッドを生成
+		// 生成工作線程
 		if (mWorkerHandler == null) {
 			mWorkerHandler = HandlerThreadHandler.createHandler(TAG);
 			mWorkerThreadID = mWorkerHandler.getLooper().getThread().getId();
@@ -78,7 +78,7 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 
 	@Override
 	public synchronized void onDestroy() {
-		// ワーカースレッドを破棄
+		// 銷毀工作線程
 		if (mWorkerHandler != null) {
 			try {
 				mWorkerHandler.getLooper().quit();
@@ -92,7 +92,7 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 
 //================================================================================
 	/**
-	 * UIスレッドでRunnableを実行するためのヘルパーメソッド
+	 * 在UI線程中執行Runnable的輔助方法
 	 * @param task
 	 * @param duration
 	 */
@@ -111,7 +111,7 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 	}
 
 	/**
-	 * UIスレッド上で指定したRunnableが実行待ちしていれば実行待ちを解除する
+	 * 如果指定的Runnable正在UI線程上等待執行，則取消等待
 	 * @param task
 	 */
 	public final void removeFromUiThread(final Runnable task) {
@@ -120,8 +120,8 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 	}
 
 	/**
-	 * ワーカースレッド上で指定したRunnableを実行する
-	 * 未実行の同じRunnableがあればキャンセルされる(後から指定した方のみ実行される)
+	 * 在工作線程上執行指定的Runnable
+	 * 如果存在未執行的同一Runnable，則會取消（只執行最後指定的）
 	 * @param task
 	 * @param delayMillis
 	 */
@@ -137,12 +137,12 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 				mWorkerHandler.post(task);
 			}
 		} catch (final Exception e) {
-			// ignore
+			// 忽略
 		}
 	}
 
 	/**
-	 * 指定したRunnableをワーカースレッド上で実行予定であればキャンセルする
+	 * 如果指定的Runnable預計在工作線程上執行，則取消之
 	 * @param task
 	 */
 	protected final synchronized void removeEvent(final Runnable task) {
@@ -150,14 +150,14 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 		try {
 			mWorkerHandler.removeCallbacks(task);
 		} catch (final Exception e) {
-			// ignore
+			// 忽略
 		}
 	}
 
-//================================================================================
+	//================================================================================
 	private Toast mToast;
 	/**
-	 * Toastでメッセージを表示
+	 * 透過Toast顯示訊息
 	 * @param msg
 	 */
 	protected void showToast(@StringRes final int msg, final Object... args) {
@@ -167,7 +167,7 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 	}
 
 	/**
-	 * Toastが表示されていればキャンセルする
+	 * 如果Toast正在顯示，則取消之
 	 */
 	protected void clearToast() {
 		removeFromUiThread(mShowToastTask);
@@ -178,7 +178,7 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 				mToast = null;
 			}
 		} catch (final Exception e) {
-			// ignore
+			// 忽略
 		}
 	}
 
@@ -198,22 +198,18 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 					mToast.cancel();
 					mToast = null;
 				}
-				if (args != null) {
-					final String _msg = getString(msg, args);
-					mToast = Toast.makeText(getActivity(), _msg, Toast.LENGTH_SHORT);
-				} else {
-					mToast = Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT);
-				}
+				final String _msg = args != null ? getString(msg, args) : getString(msg);
+				mToast = Toast.makeText(getActivity(), _msg, Toast.LENGTH_SHORT);
 				mToast.show();
 			} catch (final Exception e) {
-				// ignore
+				// 忽略
 			}
 		}
 	}
 
 //================================================================================
 	/**
-	 * MessageDialogFragmentメッセージダイアログからのコールバックリスナー
+	 * MessageDialogFragment訊息對話框的回調監聽器
 	 * @param dialog
 	 * @param requestCode
 	 * @param permissions
@@ -223,27 +219,27 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 	@Override
 	public void onMessageDialogResult(final MessageDialogFragment dialog, final int requestCode, final String[] permissions, final boolean result) {
 		if (result) {
-			// メッセージダイアログでOKを押された時はパーミッション要求する
+			// 在訊息對話框中點選OK時請求權限
 			if (BuildCheck.isMarshmallow()) {
 				requestPermissions(permissions, requestCode);
 				return;
 			}
 		}
-		// メッセージダイアログでキャンセルされた時とAndroid6でない時は自前でチェックして#checkPermissionResultを呼び出す
-		for (final String permission: permissions) {
+		// 在訊息對話框中點選取消或非Android 6時，自行檢查並調用#checkPermissionResult
+		for (final String permission : permissions) {
 			checkPermissionResult(requestCode, permission, PermissionCheck.hasPermission(getActivity(), permission));
 		}
 	}
 
 	/**
-	 * パーミッション要求結果を受け取るためのメソッド
+	 * 接收權限請求的結果
 	 * @param requestCode
 	 * @param permissions
 	 * @param grantResults
 	 */
 	@Override
 	public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);	// 何もしてないけど一応呼んどく
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);  // 雖然沒有做什麼，但還是調用一下
 		final int n = Math.min(permissions.length, grantResults.length);
 		for (int i = 0; i < n; i++) {
 			checkPermissionResult(requestCode, permissions[i], grantResults[i] == PackageManager.PERMISSION_GRANTED);
@@ -251,14 +247,14 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 	}
 
 	/**
-	 * パーミッション要求の結果をチェック
-	 * ここではパーミッションを取得できなかった時にToastでメッセージ表示するだけ
+	 * 檢查權限請求的結果
+	 * 若未獲得權限，則透過Toast顯示訊息
 	 * @param requestCode
 	 * @param permission
 	 * @param result
 	 */
 	protected void checkPermissionResult(final int requestCode, final String permission, final boolean result) {
-		// パーミッションがないときにはメッセージを表示する
+		// 若無權限，則顯示訊息
 		if (!result && (permission != null)) {
 			if (Manifest.permission.RECORD_AUDIO.equals(permission)) {
 				showToast(com.serenegiant.common.R.string.permission_audio);
@@ -272,67 +268,67 @@ public class BaseFragment extends Fragment implements MessageDialogFragment.Mess
 		}
 	}
 
-	// 動的パーミッション要求時の要求コード
+	// 動態權限請求的請求代碼
 	protected static final int REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE = 0x12345;
 	protected static final int REQUEST_PERMISSION_AUDIO_RECORDING = 0x234567;
 	protected static final int REQUEST_PERMISSION_NETWORK = 0x345678;
 	protected static final int REQUEST_PERMISSION_CAMERA = 0x537642;
 
 	/**
-	 * 外部ストレージへの書き込みパーミッションが有るかどうかをチェック
-	 * なければ説明ダイアログを表示する
-	 * @return true 外部ストレージへの書き込みパーミッションが有る
+	 * 檢查是否有外部儲存設備寫入權限
+	 * 若無則顯示說明對話框
+	 * @return true 若有外部儲存設備寫入權限
 	 */
 	protected boolean checkPermissionWriteExternalStorage() {
 		if (!PermissionCheck.hasWriteExternalStorage(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE,
-				com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_ext_storage_request,
-				new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
+					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_ext_storage_request,
+					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * 録音のパーミッションが有るかどうかをチェック
-	 * なければ説明ダイアログを表示する
-	 * @return true 録音のパーミッションが有る
+	 * 檢查是否有錄音權限
+	 * 若無則顯示說明對話框
+	 * @return true 若有錄音權限
 	 */
 	protected boolean checkPermissionAudio() {
 		if (!PermissionCheck.hasAudio(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_AUDIO_RECORDING,
-				com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_audio_recording_request,
-				new String[]{Manifest.permission.RECORD_AUDIO});
+					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_audio_recording_request,
+					new String[]{Manifest.permission.RECORD_AUDIO});
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * ネットワークアクセスのパーミッションが有るかどうかをチェック
-	 * なければ説明ダイアログを表示する
-	 * @return true ネットワークアクセスのパーミッションが有る
+	 * 檢查是否有網路存取權限
+	 * 若無則顯示說明對話框
+	 * @return true 若有網路存取權限
 	 */
 	protected boolean checkPermissionNetwork() {
 		if (!PermissionCheck.hasNetwork(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_NETWORK,
-				com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_network_request,
-				new String[]{Manifest.permission.INTERNET});
+					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_network_request,
+					new String[]{Manifest.permission.INTERNET});
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * カメラアクセスのパーミッションがあるかどうかをチェック
-	 * なければ説明ダイアログを表示する
-	 * @return true カメラアクセスのパーミッションが有る
+	 * 檢查是否有攝像頭存取權限
+	 * 若無則顯示說明對話框
+	 * @return true 若有攝像頭存取權限
 	 */
 	protected boolean checkPermissionCamera() {
 		if (!PermissionCheck.hasCamera(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_CAMERA,
-				com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_camera_request,
-				new String[]{Manifest.permission.CAMERA});
+					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_camera_request,
+					new String[]{Manifest.permission.CAMERA});
 			return false;
 		}
 		return true;
