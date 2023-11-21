@@ -25,13 +25,14 @@ package com.serenegiant.common;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Fragment;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import com.serenegiant.dialog.MessageDialogFragment;
 import com.serenegiant.utils.BuildCheck;
 import com.serenegiant.utils.HandlerThreadHandler;
 import com.serenegiant.utils.PermissionCheck;
+import com.serenegiant.uvccamera.R;
 
 /**
  * Created by saki on 2016/11/19.
@@ -257,13 +259,13 @@ public class BaseCameraFragment extends Fragment implements MessageDialogFragmen
 		// 若無權限，則顯示訊息
 		if (!result && (permission != null)) {
 			if (Manifest.permission.RECORD_AUDIO.equals(permission)) {
-				showToast(com.serenegiant.common.R.string.permission_audio);
+				showToast(R.string.permission_audio);
 			}
 			if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
-				showToast(com.serenegiant.common.R.string.permission_ext_storage);
+				showToast(R.string.permission_ext_storage);
 			}
 			if (Manifest.permission.INTERNET.equals(permission)) {
-				showToast(com.serenegiant.common.R.string.permission_network);
+				showToast(R.string.permission_network);
 			}
 		}
 	}
@@ -282,7 +284,7 @@ public class BaseCameraFragment extends Fragment implements MessageDialogFragmen
 	protected boolean checkPermissionWriteExternalStorage() {
 		if (!PermissionCheck.hasWriteExternalStorage(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE,
-					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_ext_storage_request,
+					R.string.permission_title, R.string.permission_ext_storage_request,
 					new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE});
 			return false;
 		}
@@ -297,7 +299,7 @@ public class BaseCameraFragment extends Fragment implements MessageDialogFragmen
 	protected boolean checkPermissionAudio() {
 		if (!PermissionCheck.hasAudio(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_AUDIO_RECORDING,
-					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_audio_recording_request,
+					R.string.permission_title, R.string.permission_audio_recording_request,
 					new String[]{Manifest.permission.RECORD_AUDIO});
 			return false;
 		}
@@ -312,7 +314,7 @@ public class BaseCameraFragment extends Fragment implements MessageDialogFragmen
 	protected boolean checkPermissionNetwork() {
 		if (!PermissionCheck.hasNetwork(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_NETWORK,
-					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_network_request,
+					R.string.permission_title, R.string.permission_network_request,
 					new String[]{Manifest.permission.INTERNET});
 			return false;
 		}
@@ -327,7 +329,7 @@ public class BaseCameraFragment extends Fragment implements MessageDialogFragmen
 	protected boolean checkPermissionCamera() {
 		if (!PermissionCheck.hasCamera(getActivity())) {
 			MessageDialogFragment.showDialog(this, REQUEST_PERMISSION_CAMERA,
-					com.serenegiant.common.R.string.permission_title, com.serenegiant.common.R.string.permission_camera_request,
+					R.string.permission_title, R.string.permission_camera_request,
 					new String[]{Manifest.permission.CAMERA});
 			return false;
 		}

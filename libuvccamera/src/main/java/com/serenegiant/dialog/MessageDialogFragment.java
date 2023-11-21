@@ -4,15 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Fragment;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
 
 import com.serenegiant.utils.BuildCheck;
 
@@ -20,16 +18,16 @@ public class MessageDialogFragment extends DialogFragment {
     private static final String TAG = MessageDialogFragment.class.getSimpleName();
     private MessageDialogListener mDialogListener;
 
-    public static MessageDialogFragment showDialog(Activity parent, int requestCode, int id_title, int id_message, String[] permissions) {
+    public static MessageDialogFragment showDialog(AppCompatActivity parent, int requestCode, int id_title, int id_message, String[] permissions) {
         MessageDialogFragment dialog = newInstance(requestCode, id_title, id_message, permissions);
-        dialog.show(parent.getFragmentManager(), TAG);
+        dialog.show(parent.getSupportFragmentManager(), TAG);
         return dialog;
     }
 
-    public static MessageDialogFragment showDialog(android.app.Fragment parent, int requestCode, int id_title, int id_message, String[] permissions) {
+    public static MessageDialogFragment showDialog(Fragment parent, int requestCode, int id_title, int id_message, String[] permissions) {
         MessageDialogFragment dialog = newInstance(requestCode, id_title, id_message, permissions);
         dialog.setTargetFragment(parent, parent.getId());
-        dialog.show(parent.getFragmentManager(), TAG);
+        dialog.show(parent.getParentFragmentManager(), TAG);
         return dialog;
     }
 
