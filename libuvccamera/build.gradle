@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+group 'com.serenegiant.uvccamera'
+archivesBaseName = 'MyLibrary'
+version = "v1.0.0"
 /*
  *  UVCCamera
  *  library and sample to access to UVC web camera on non-rooted Android device
@@ -85,13 +88,14 @@ task ndkClean(type: Exec, description: 'clean JNI libraries') {
 clean.dependsOn 'ndkClean'
 
 dependencies {
+
     implementation fileTree(dir: new File(buildDir, 'libs'), include: '*.jar')
 	implementation 'androidx.appcompat:appcompat:1.6.1'
 
 	implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 	implementation 'androidx.annotation:annotation:1.0.0'
 
-	api("com.serenegiant:common:${libUvcCameraCommonLibVersion}") {
-		exclude module: 'support-v4'
-	}
+//	api("com.serenegiant:common:${libUvcCameraCommonLibVersion}") {
+//		exclude module: 'support-v4'
+//	}
 }
